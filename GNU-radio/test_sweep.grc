@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flowgraph>
+  <block>
+    <key>name</key>
+    <value>Frequency Sweep</value>
+  </block>
+
+  <!-- Variables -->
+  <block>
+    <key>id</key>
+    <value>variable_start_freq</value>
+    <param>
+      <key>value</key>
+      <value>1000</value> <!-- Start Frequency -->
+    </param>
+  </block>
+
+  <block>
+    <key>id</key>
+    <value>variable_end_freq</value>
+    <param>
+      <key>value</key>
+      <value>10000</value> <!-- End Frequency -->
+    </param>
+  </block>
+
+  <block>
+    <key>id</key>
+    <value>variable_step_freq</value>
+    <param>
+      <key>value</key>
+      <value>500</value> <!-- Step Frequency -->
+    </param>
+  </block>
+
+  <block>
+    <key>id</key>
+    <value>variable_sweep_freq</value>
+    <param>
+      <key>value</key>
+      <value>1000</value> <!-- Initial Sweep Frequency -->
+    </param>
+  </block>
+
+  <!-- Signal Source -->
+  <block>
+    <key>id</key>
+    <value>sig_source</value>
+    <param>
+      <key>waveform</key>
+      <value>0</value> <!-- Sine wave -->
+    </param>
+    <param>
+      <key>frequency</key>
+      <value>variable_sweep_freq</value> <!-- Sweep Frequency -->
+    </param>
+    <param>
+      <key>amplitude</key>
+      <value>1</value> <!-- Amplitude -->
+    </param>
+    <param>
+      <key>sampling_freq</key>
+      <value>32000</value> <!-- Sampling Frequency -->
+    </param>
+  </block>
+
+  <!-- Throttle Block -->
+  <block>
+    <key>id</key>
+    <value>throttle</value>
+    <param>
+      <key>sample_rate</key>
+      <value>32000</value> <!-- Throttling to avoid CPU overload -->
+    </param>
+  </block>
+
+  <!-- Audio Sink (for example) -->
+  <block>
+    <key>id</key>
+    <value>audio_sink</value>
+    <param>
+      <key>sample_rate</key>
+      <value>32000</value> <!-- Audio output for testing -->
+    </param>
+  </block>
+
+
+
+  <!-- Connections -->
+  <connection>
+    <from>sig_source:0</from>
+    <to>throttle:0</to>
+  </connection>
+  <connection>
+    <from>throttle:0</from>
+    <to>audio_sink:0</to>
+  </connection>
+  <connection>
+    <from>python_block:0</from>
+    <to>sig_source:frequency</to>
+  </connection>
+</flowgraph>

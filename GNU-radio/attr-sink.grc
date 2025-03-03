@@ -1,0 +1,137 @@
+options:
+  parameters:
+    author: Travis Collins
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: attr_sink_example
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Attribute Sink Example
+    window_size: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: analog_sig_source_x_0
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: ''
+    freq: '1000'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: complex
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [152, 100.0]
+    rotation: 0
+    state: enabled
+- name: blocks_message_debug_0
+  id: blocks_message_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    en_uvec: 'True'
+    log_level: info
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [352, 76.0]
+    rotation: 0
+    state: disabled
+- name: blocks_message_strobe_0_0
+  id: blocks_message_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msg: msg_source.msg_dic
+    period: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [128, 16.0]
+    rotation: 0
+    state: disabled
+- name: iio_attr_sink_0
+  id: iio_attr_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    attr_type: '0'
+    channel: '"voltage0"'
+    comment: ''
+    device: '"ad9361-phy"'
+    output: 'False'
+    uri: '"ip:192.168.2.1"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 8.0]
+    rotation: 0
+    state: disabled
+- name: msg_source
+  id: epy_module
+  parameters:
+    alias: ''
+    comment: ''
+    source_code: 'import pmt
+
+      key0 = pmt.intern("rf_bandwidth")
+
+      val0 = pmt.intern("23000000")
+
+      msg_dic = pmt.make_dict()
+
+      msg_dic = pmt.dict_add(msg_dic, key0, val0)'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [32, 132]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_message_strobe_0_0, strobe, blocks_message_debug_0, print]
+- [blocks_message_strobe_0_0, strobe, iio_attr_sink_0, attr]
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.11.0
