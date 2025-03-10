@@ -12,6 +12,7 @@
 from PyQt5 import Qt
 from gnuradio import qtgui
 from gnuradio import analog
+from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio.filter import firdes
@@ -62,17 +63,18 @@ class untitled(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.LO_freq = LO_freq = 100e6
+        self.LO_freq = LO_freq = 2800e6
         self.samp_rate = samp_rate = 6e6
         self.frequency = frequency = LO_freq
         self.freq_dev = freq_dev = 200e6
+        self.IF_freq = IF_freq = 2.16e6
 
         ##################################################
         # Blocks
         ##################################################
 
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
-            2048, #size
+            1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             LO_freq, #fc
             samp_rate, #bw
@@ -107,7 +109,7 @@ class untitled(gr.top_block, Qt.QWidget):
 
         self.top_layout.addWidget(self._qtgui_waterfall_sink_x_0_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-            2048, #size
+            1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             LO_freq, #fc
             samp_rate, #bw
@@ -123,7 +125,7 @@ class untitled(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0.enable_grid(True)
         self.qtgui_freq_sink_x_0.set_fft_average(1.0)
         self.qtgui_freq_sink_x_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0.enable_control_panel(True)
+        self.qtgui_freq_sink_x_0.enable_control_panel(False)
         self.qtgui_freq_sink_x_0.set_fft_window_normalized(False)
 
 
@@ -159,14 +161,18 @@ class untitled(gr.top_block, Qt.QWidget):
         self._frequency_label = Qt.QLabel(str(self._frequency_formatter(self.frequency)))
         self._frequency_tool_bar.addWidget(self._frequency_label)
         self.top_layout.addWidget(self._frequency_tool_bar)
-        self.analog_sig_source_x_0_0_0 = analog.sig_source_c(samp_rate, analog.GR_SIN_WAVE, LO_freq, 1, 0, 0)
+        self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
+        self.analog_sig_source_x_0_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, IF_freq, 1, 0, 0)
+        self.analog_sig_source_x_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, LO_freq, 1, 0, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.analog_sig_source_x_0_0_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.analog_sig_source_x_0_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.analog_sig_source_x_0_0_0, 0), (self.blocks_multiply_xx_0, 1))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
 
 
     def closeEvent(self, event):
@@ -183,7 +189,7 @@ class untitled(gr.top_block, Qt.QWidget):
     def set_LO_freq(self, LO_freq):
         self.LO_freq = LO_freq
         self.set_frequency(self.LO_freq)
-        self.analog_sig_source_x_0_0_0.set_frequency(self.LO_freq)
+        self.analog_sig_source_x_0_0.set_frequency(self.LO_freq)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.LO_freq, self.samp_rate)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.LO_freq, self.samp_rate)
 
@@ -192,6 +198,7 @@ class untitled(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.analog_sig_source_x_0_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_0_0.set_sampling_freq(self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.LO_freq, self.samp_rate)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.LO_freq, self.samp_rate)
@@ -208,6 +215,13 @@ class untitled(gr.top_block, Qt.QWidget):
 
     def set_freq_dev(self, freq_dev):
         self.freq_dev = freq_dev
+
+    def get_IF_freq(self):
+        return self.IF_freq
+
+    def set_IF_freq(self, IF_freq):
+        self.IF_freq = IF_freq
+        self.analog_sig_source_x_0_0_0.set_frequency(self.IF_freq)
 
 
 
